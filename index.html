@@ -192,15 +192,906 @@
 
       <div class="row">
               <h2>Code Appendix</h2>
-              <pre><code>
-// Hello World.c
-int main(){
-  printf("Hello World.\n");
-}
-              </code></pre>
-      </div>
+              <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># controller.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># Final Project, 5/13/18</span>
+<span style="color: #888888">#   -manages all of the functionality of the RPi Music Assistant, using the </span>
+<span style="color: #888888">#    functions defined in each screen&#39;s file</span>
 
-    </div><!-- /.container -->
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span> <span style="color: #888888"># for OS calls</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.mixer</span> <span style="color: #008800; font-weight: bold">import</span> Sound, get_init, pre_init
+os<span style="color: #333333">.</span>putenv(<span style="background-color: #fff0f0">&#39;SDL_VIDEODRIVER&#39;</span>,<span style="background-color: #fff0f0">&#39;fbcon&#39;</span>) <span style="color: #888888"># Display on piTFT</span>
+os<span style="color: #333333">.</span>putenv(<span style="background-color: #fff0f0">&#39;SDL_FBDEV&#39;</span>,<span style="background-color: #fff0f0">&#39;/dev/fb1&#39;</span>)
+os<span style="color: #333333">.</span>putenv(<span style="background-color: #fff0f0">&#39;SDL_MOUSEDRV&#39;</span>, <span style="background-color: #fff0f0">&#39;TSLIB&#39;</span>)
+os<span style="color: #333333">.</span>putenv(<span style="background-color: #fff0f0">&#39;SDL_MOUSEDEV&#39;</span>, <span style="background-color: #fff0f0">&#39;/dev/input/touchscreen&#39;</span>)
+pygame<span style="color: #333333">.</span>init()
+pre_init(<span style="color: #0000DD; font-weight: bold">44100</span>, <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">16</span>, <span style="color: #0000DD; font-weight: bold">1</span>, <span style="color: #0000DD; font-weight: bold">1024</span>)
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">main_menu</span> <span style="color: #008800; font-weight: bold">import</span> main_init
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">metronome</span> <span style="color: #008800; font-weight: bold">import</span> metro_init
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">tuner</span> <span style="color: #008800; font-weight: bold">import</span> tuner_init
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">recording_list</span> <span style="color: #008800; font-weight: bold">import</span> rec_list_init
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">recorder</span> <span style="color: #008800; font-weight: bold">import</span> record_init
+
+GPIO<span style="color: #333333">.</span>setmode(GPIO<span style="color: #333333">.</span>BCM)
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">27</span>, GPIO<span style="color: #333333">.</span>IN, pull_up_down<span style="color: #333333">=</span>GPIO<span style="color: #333333">.</span>PUD_UP)
+
+<span style="color: #888888"># quit button</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">GPIO27_callback</span>(channel):
+    GPIO<span style="color: #333333">.</span>cleanup()
+    <span style="color: #007020">exit</span>()
+
+<span style="color: #888888"># check button clicks</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">click_in_button</span>(button, click):
+    x,y <span style="color: #333333">=</span> click
+    <span style="color: #008800; font-weight: bold">if</span> x <span style="color: #333333">&lt;</span> button<span style="color: #333333">.</span>right <span style="color: #000000; font-weight: bold">and</span> x <span style="color: #333333">&gt;</span> button<span style="color: #333333">.</span>left <span style="color: #000000; font-weight: bold">and</span> y <span style="color: #333333">&gt;</span> button<span style="color: #333333">.</span>top <span style="color: #000000; font-weight: bold">and</span> y <span style="color: #333333">&lt;</span> button<span style="color: #333333">.</span>bottom:
+        <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">False</span>
+
+<span style="color: #888888"># add quit button</span>
+GPIO<span style="color: #333333">.</span>add_event_detect(<span style="color: #0000DD; font-weight: bold">27</span>, GPIO<span style="color: #333333">.</span>FALLING, callback<span style="color: #333333">=</span>GPIO27_callback)
+
+<span style="color: #888888"># initialize and define constants</span>
+pygame<span style="color: #333333">.</span>init()
+pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>set_visible(<span style="color: #007020">False</span>)
+size <span style="color: #333333">=</span> width, height <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">320</span>, <span style="color: #0000DD; font-weight: bold">240</span>
+black <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+white <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>
+red <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+green <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+
+screen <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>set_mode(size)
+
+<span style="color: #888888"># menu navigation</span>
+<span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+    <span style="color: #888888"># Display main menu</span>
+    navi <span style="color: #333333">=</span> main_init(screen)
+
+    <span style="color: #008800; font-weight: bold">if</span> (navi <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">0</span>):
+        <span style="color: #888888"># Exit out of the program</span>
+        GPIO<span style="color: #333333">.</span>cleanup()
+        <span style="color: #007020">exit</span>()
+    <span style="color: #008800; font-weight: bold">elif</span> (navi <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">1</span>):
+        <span style="color: #888888"># Open metronome</span>
+        metro_init(screen)
+    <span style="color: #008800; font-weight: bold">elif</span> (navi <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">2</span>):
+        <span style="color: #888888"># Open tuner</span>
+        tuner_init(screen)
+    <span style="color: #008800; font-weight: bold">else</span>:
+        <span style="color: #888888"># Open recordings list</span>
+        new_rec <span style="color: #333333">=</span> rec_list_init(screen)
+
+        <span style="color: #888888"># Check if making new recording</span>
+        <span style="color: #008800; font-weight: bold">while</span> (new_rec):
+            <span style="color: #888888"># Open recorder</span>
+            record_init(screen)
+
+            <span style="color: #888888"># Go back to recordings list</span>
+            new_rec <span style="color: #333333">=</span> rec_list_init(screen)
+
+GPIO<span style="color: #333333">.</span>cleanup()
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># gui_functions.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># Final Project, 5/13/18</span>
+
+<span style="color: #888888"># This file defines functions to help with displaying the GUI</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+
+<span style="color: #888888"># constant color definitions for use in GUI objects</span>
+black <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+white <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>
+red <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+green <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+
+<span style="color: #888888"># two standard fonts</span>
+my_font <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>font<span style="color: #333333">.</span>SysFont(<span style="background-color: #fff0f0">&quot;FreeMono, Monospace&quot;</span>, <span style="color: #0000DD; font-weight: bold">12</span>) <span style="color: #888888"># large font for home screen buttons</span>
+button_font <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>font<span style="color: #333333">.</span>Font(<span style="color: #007020">None</span>, <span style="color: #0000DD; font-weight: bold">21</span>)
+
+
+<span style="color: #888888"># Modular function for displaying a button. It displays a button with a single</span>
+<span style="color: #888888"># line of text. Arguments include center position, size, font color, and font size.</span>
+<span style="color: #888888"># Returns a rect object for click detection.</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">show_button</span>(screen, text, loc, size, color, font_size):
+
+text_surface <span style="color: #333333">=</span> font_size<span style="color: #333333">.</span>render(text, <span style="color: #007020">True</span>, black)
+button_text <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>loc)
+button_area <span style="color: #333333">=</span> Rect((<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">0</span>), size)
+button_area<span style="color: #333333">.</span>center <span style="color: #333333">=</span> loc
+
+border_area <span style="color: #333333">=</span> button_area<span style="color: #333333">.</span>copy()
+border_size <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">4</span>
+border_area<span style="color: #333333">.</span>width <span style="color: #333333">=</span> border_area<span style="color: #333333">.</span>width<span style="color: #333333">+</span>border_size
+border_area<span style="color: #333333">.</span>height <span style="color: #333333">=</span> border_area<span style="color: #333333">.</span>height<span style="color: #333333">+</span>border_size
+border_area<span style="color: #333333">.</span>center <span style="color: #333333">=</span> button_area<span style="color: #333333">.</span>center
+
+pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen, black, border_area)
+pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen, color, button_area)
+
+screen<span style="color: #333333">.</span>blit(text_surface, button_text)
+pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+<span style="color: #008800; font-weight: bold">return</span> button_area
+
+<span style="color: #888888"># Takes a button Rect object and a click coordinate. Returns true if the click</span>
+<span style="color: #888888"># is on the button.</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">click_in_button</span>(button, click):
+x,y <span style="color: #333333">=</span> click
+<span style="color: #008800; font-weight: bold">if</span> x <span style="color: #333333">&lt;</span> button<span style="color: #333333">.</span>right <span style="color: #000000; font-weight: bold">and</span> x <span style="color: #333333">&gt;</span> button<span style="color: #333333">.</span>left <span style="color: #000000; font-weight: bold">and</span> y <span style="color: #333333">&gt;</span> button<span style="color: #333333">.</span>top <span style="color: #000000; font-weight: bold">and</span> y <span style="color: #333333">&lt;</span> button<span style="color: #333333">.</span>bottom:
+  <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+<span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">False</span>
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># main_menu.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#   -contains all functionality for the main menu of the RPi Music Assistant</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span> <span style="color: #888888"># for OS calls</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">gui_functions</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+
+title_font <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>font<span style="color: #333333">.</span>Font(<span style="color: #007020">None</span>,<span style="color: #0000DD; font-weight: bold">36</span>)
+
+<span style="color: #888888"># displays the main menu</span>
+<span style="color: #888888"># returns an integer depending on which menu to transition to</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">main_init</span>(screen):
+    screen<span style="color: #333333">.</span>fill(white)
+
+    metro_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Metronome&quot;</span>, (<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">80</span>), white, button_font)
+    tuner_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Tuner&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">80</span>), white, button_font)
+    rec_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Recorder&quot;</span>, (<span style="color: #0000DD; font-weight: bold">260</span>,<span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">80</span>), white, button_font)
+    quit_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Quit&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), red, button_font)
+
+    text_surface <span style="color: #333333">=</span> title_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;RPi Music Assistant&quot;</span>, <span style="color: #007020">True</span>, black)
+    title_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface,title_button)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()       <span style="color: #888888"># display workspace on screen</span>
+
+    <span style="color: #888888"># Check for button presses</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(quit_button, pos):
+                    <span style="color: #888888"># Quit the program</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Button pressed. Exiting the program&quot;</span>
+                    <span style="color: #888888">#GPIO.cleanup()</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #0000DD; font-weight: bold">0</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(metro_button, pos):
+                    <span style="color: #888888"># Load the metronome</span>
+                    <span style="color: #888888">#metro_init(screen)</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Metronome&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #0000DD; font-weight: bold">1</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(tuner_button, pos):
+                    <span style="color: #888888"># Load the tuner</span>
+                    <span style="color: #888888">#tuner_init(screen)</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Tuner&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #0000DD; font-weight: bold">2</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(rec_button, pos):
+                    <span style="color: #888888"># Load the recorder</span>
+                    <span style="color: #888888">#rec_list_init(screen)</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Recorder&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #0000DD; font-weight: bold">3</span>
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># metronome.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#   -displays the metronome tool for RPi Music Assistant. Provides visual</span>
+<span style="color: #888888">#    and audio output for metronome functionality, with buttons to change</span>
+<span style="color: #888888">#    beats per minute (bpm) rate</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">gui_functions</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pyaudio</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">math</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">itertools</span> <span style="color: #008800; font-weight: bold">import</span> izip
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">subprocess</span>
+
+bpm <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #888888"># initial beats per minute</span>
+
+<span style="color: #888888"># display the initial screen</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">metro_init</span>(screen):
+    <span style="color: #008800; font-weight: bold">global</span> bpm
+
+    angle <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888"># angle for bouncing line</span>
+
+    screen<span style="color: #333333">.</span>fill(white)
+
+    <span style="color: #888888"># Render and display all visual elements</span>
+    minus_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;-&quot;</span>, (<span style="color: #0000DD; font-weight: bold">100</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">30</span>,<span style="color: #0000DD; font-weight: bold">30</span>), white, button_font)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;BPM&quot;</span>, <span style="color: #007020">True</span>, black)
+    change_BPM <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">210</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, change_BPM)
+
+    plus_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;+&quot;</span>, (<span style="color: #0000DD; font-weight: bold">220</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">30</span>,<span style="color: #0000DD; font-weight: bold">30</span>), white, button_font)
+
+    back_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Back&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="color: #007020">str</span>(bpm) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot; BPM&quot;</span>, <span style="color: #007020">True</span>, black)
+    bpm_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, bpm_button)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()       <span style="color: #888888"># display workspace on screen</span>
+
+    start <span style="color: #333333">=</span> time<span style="color: #333333">.</span>time()
+    tick_start <span style="color: #333333">=</span> time<span style="color: #333333">.</span>time()
+
+    ticking <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+
+    cmd <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;aplay -q /home/pi/final_project/metronome.wav &amp;&#39;</span>
+
+    <span style="color: #888888"># Check for button presses</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.016</span>)
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(back_button, pos):
+                    <span style="color: #888888"># Return to main menu</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(minus_button, pos):
+                    <span style="color: #888888"># Decrease the bpm</span>
+                    bpm <span style="color: #333333">=</span> bpm <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">5</span>
+                    update_bpm(screen, bpm)
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(plus_button, pos):
+                    <span style="color: #888888"># Increase the bpm</span>
+                    bpm <span style="color: #333333">=</span> bpm <span style="color: #333333">+</span> <span style="color: #0000DD; font-weight: bold">5</span>
+                    update_bpm(screen, bpm)
+
+        <span style="color: #888888"># display blinking dot and play a beat at the bpm rate</span>
+        current_time <span style="color: #333333">=</span> time<span style="color: #333333">.</span>time()
+        frequency <span style="color: #333333">=</span> bpm<span style="color: #333333">/</span><span style="color: #6600EE; font-weight: bold">60.0</span><span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">2</span>
+        tick_freq <span style="color: #333333">=</span> bpm<span style="color: #333333">/</span><span style="color: #6600EE; font-weight: bold">60.0</span>
+
+        period_time <span style="color: #333333">=</span> (current_time <span style="color: #333333">-</span> start) <span style="color: #333333">%</span> (<span style="color: #6600EE; font-weight: bold">1.0</span><span style="color: #333333">/</span>tick_freq)
+        <span style="color: #008800; font-weight: bold">if</span> (period_time <span style="color: #333333">&lt;</span> <span style="color: #6600EE; font-weight: bold">0.1</span>) <span style="color: #000000; font-weight: bold">and</span> <span style="color: #000000; font-weight: bold">not</span> ticking:
+            pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>circle(screen, red, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">30</span>), <span style="color: #0000DD; font-weight: bold">10</span>)
+            subprocess<span style="color: #333333">.</span>call(cmd, shell<span style="color: #333333">=</span><span style="color: #007020">True</span>)
+            ticking <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+
+        <span style="color: #888888"># erase the dot after 0.1 sec</span>
+        <span style="color: #008800; font-weight: bold">if</span> (period_time <span style="color: #333333">&gt;=</span> <span style="color: #6600EE; font-weight: bold">0.1</span>) <span style="color: #000000; font-weight: bold">and</span> ticking:
+            pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>circle(screen, white, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">30</span>), <span style="color: #0000DD; font-weight: bold">10</span>)
+            ticking <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+
+        t <span style="color: #333333">=</span> current_time <span style="color: #333333">-</span> start <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span><span style="color: #333333">/</span><span style="color: #6600EE; font-weight: bold">4.0</span><span style="color: #333333">/</span>frequency
+        angle <span style="color: #333333">=</span> math<span style="color: #333333">.</span>pi<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">4</span><span style="color: #333333">*</span> (<span style="color: #0000DD; font-weight: bold">1</span><span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">4</span><span style="color: #333333">*</span><span style="color: #007020">abs</span>(<span style="color: #007020">round</span>(t<span style="color: #333333">*</span>frequency)<span style="color: #333333">-</span>t<span style="color: #333333">*</span>frequency))
+
+        pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen, white, (<span style="color: #0000DD; font-weight: bold">60</span>, <span style="color: #0000DD; font-weight: bold">80</span>, <span style="color: #0000DD; font-weight: bold">200</span>, <span style="color: #0000DD; font-weight: bold">100</span>))
+        start_pos <span style="color: #333333">=</span> np<span style="color: #333333">.</span>array((<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">180</span>))
+        L <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">100</span>
+        end_pos <span style="color: #333333">=</span> start_pos <span style="color: #333333">+</span> L<span style="color: #333333">*</span>np<span style="color: #333333">.</span>array((math<span style="color: #333333">.</span>sin(angle), <span style="color: #333333">-</span>math<span style="color: #333333">.</span>cos(angle)))
+        pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>line(screen, black, start_pos, end_pos, <span style="color: #0000DD; font-weight: bold">3</span>)
+        pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+
+<span style="color: #888888"># updates the display to show the new bpm rate</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">update_bpm</span>(screen, bpm):
+    bpm_rect <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">20</span>)
+    bpm_rect<span style="color: #333333">.</span>center <span style="color: #333333">=</span> (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">30</span>)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,bpm_rect)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="color: #007020">str</span>(bpm) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot; BPM&quot;</span>, <span style="color: #007020">True</span>, black)
+    bpm_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, bpm_button)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># recorder.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#   -Recorder tool for RPi Music Assistant. Can record the sounds received</span>
+<span style="color: #888888">#    by the micrphone and save as a file</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span> <span style="color: #888888"># for OS calls</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">gui_functions</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pyaudio</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">wave</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">datetime</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+
+<span style="color: #888888"># display the recorder screen</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">record_init</span>(screen):
+    screen<span style="color: #333333">.</span>fill(white)
+
+    <span style="color: #888888"># Render and display all visual elements</span>
+    start_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Start&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">60</span>), white, button_font)
+    back_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Back&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;Rec&quot;</span>, <span style="color: #007020">True</span>, black)
+    rec_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">270</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, rec_button)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;00:00:00&quot;</span>, <span style="color: #007020">True</span>, black)
+    time_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, time_button)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()       <span style="color: #888888"># display workspace on screen</span>
+
+    <span style="color: #888888"># Check for button presses</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(back_button, pos):
+                    <span style="color: #888888"># Return to recordings list</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Back&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(start_button, pos):
+                    <span style="color: #888888"># Start the recording</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Start&quot;</span>
+                    start_recording(screen)
+
+
+    <span style="color: #888888">#GPIO.cleanup()</span>
+
+<span style="color: #888888"># begin recording audio and save to file</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">start_recording</span>(screen):
+    <span style="color: #888888"># change the display</span>
+    stop_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Stop&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">60</span>), white, button_font)
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;Rec&quot;</span>, <span style="color: #007020">True</span>, black)
+    rec_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">270</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, rec_button)
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+    audio <span style="color: #333333">=</span> pyaudio<span style="color: #333333">.</span>PyAudio()
+    RATE <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">8000</span>
+    CHUNK <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1024</span>
+
+    stream <span style="color: #333333">=</span> audio<span style="color: #333333">.</span>open(format<span style="color: #333333">=</span>pyaudio<span style="color: #333333">.</span>paInt16,channels<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">1</span>,rate<span style="color: #333333">=</span>RATE,<span style="color: #007020">input</span><span style="color: #333333">=</span><span style="color: #007020">True</span>,frames_per_buffer<span style="color: #333333">=</span>CHUNK)
+    frames <span style="color: #333333">=</span> []
+
+    recording <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+    start <span style="color: #333333">=</span> time<span style="color: #333333">.</span>time()
+
+    <span style="color: #888888"># record audio</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span> <span style="color: #000000; font-weight: bold">and</span> recording:
+        data <span style="color: #333333">=</span> stream<span style="color: #333333">.</span>read(CHUNK)
+        frames<span style="color: #333333">.</span>append(data)
+
+        current <span style="color: #333333">=</span> time<span style="color: #333333">.</span>time()
+
+        <span style="color: #888888"># update visual elements</span>
+        <span style="color: #008800; font-weight: bold">if</span> (current <span style="color: #333333">-</span> start) <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">1</span> <span style="color: #333333">&lt;</span> <span style="color: #6600EE; font-weight: bold">0.5</span>:
+            pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>circle(screen,red, (<span style="color: #0000DD; font-weight: bold">300</span>, <span style="color: #0000DD; font-weight: bold">30</span>), <span style="color: #0000DD; font-weight: bold">6</span>)
+            pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,(<span style="color: #0000DD; font-weight: bold">20</span>,<span style="color: #0000DD; font-weight: bold">10</span>,<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+            rec_time <span style="color: #333333">=</span> rec_duration(<span style="color: #007020">int</span>(current <span style="color: #333333">-</span> start))
+            text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(rec_time, <span style="color: #007020">True</span>, black)
+            time_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+            screen<span style="color: #333333">.</span>blit(text_surface, time_button)
+        <span style="color: #008800; font-weight: bold">else</span>:
+            pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>circle(screen,white, (<span style="color: #0000DD; font-weight: bold">300</span>, <span style="color: #0000DD; font-weight: bold">30</span>), <span style="color: #0000DD; font-weight: bold">6</span>)
+
+        pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+        <span style="color: #888888"># check for stop button press</span>
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(stop_button, pos):
+                    recording <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+
+    <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Finished Recording.&quot;</span>)
+
+    <span style="color: #888888"># stop and write to file</span>
+    stream<span style="color: #333333">.</span>stop_stream()
+    stream<span style="color: #333333">.</span>close()
+    audio<span style="color: #333333">.</span>terminate()
+
+    now <span style="color: #333333">=</span> datetime<span style="color: #333333">.</span>datetime<span style="color: #333333">.</span>now()
+    filename <span style="color: #333333">=</span> now<span style="color: #333333">.</span>strftime(<span style="background-color: #fff0f0">&quot;/home/pi/final_project/recordings/%Y-%m-</span><span style="background-color: #eeeeee">%d</span><span style="background-color: #fff0f0"> %H-%M-%S.wav&quot;</span>)
+
+    waveFile <span style="color: #333333">=</span> wave<span style="color: #333333">.</span>open(filename, <span style="background-color: #fff0f0">&#39;wb&#39;</span>)
+    waveFile<span style="color: #333333">.</span>setnchannels(<span style="color: #0000DD; font-weight: bold">1</span>)
+    waveFile<span style="color: #333333">.</span>setsampwidth(audio<span style="color: #333333">.</span>get_sample_size(pyaudio<span style="color: #333333">.</span>paInt16))
+    waveFile<span style="color: #333333">.</span>setframerate(RATE)
+    waveFile<span style="color: #333333">.</span>writeframes(b<span style="background-color: #fff0f0">&#39;&#39;</span><span style="color: #333333">.</span>join(frames))
+    waveFile<span style="color: #333333">.</span>close()
+
+    <span style="color: #888888"># reset screen</span>
+    start_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Start&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">120</span>), (<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">60</span>), white, button_font)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>circle(screen,white, (<span style="color: #0000DD; font-weight: bold">300</span>, <span style="color: #0000DD; font-weight: bold">30</span>), <span style="color: #0000DD; font-weight: bold">6</span>)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,(<span style="color: #0000DD; font-weight: bold">20</span>,<span style="color: #0000DD; font-weight: bold">10</span>,<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;00:00:00&quot;</span>, <span style="color: #007020">True</span>, black)
+    time_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, time_button)
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+<span style="color: #888888"># determine the hours, minutes, and seconds of the given length of time</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">rec_duration</span>(time_len):
+    hrs <span style="color: #333333">=</span> time_len <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">3600</span>
+    mins <span style="color: #333333">=</span> (time_len <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">3600</span>) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">60</span>
+    sec <span style="color: #333333">=</span> time_len <span style="color: #333333">%</span> <span style="color: #0000DD; font-weight: bold">60</span>
+
+    duration <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;</span><span style="background-color: #eeeeee">%02.0f</span><span style="background-color: #fff0f0">:</span><span style="background-color: #eeeeee">%02.0f</span><span style="background-color: #fff0f0">:</span><span style="background-color: #eeeeee">%02.0f</span><span style="background-color: #fff0f0">&#39;</span> <span style="color: #333333">%</span> (hrs, mins, sec)
+    <span style="color: #008800; font-weight: bold">return</span> duration
+</pre></div>
+
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># recording_list.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#   -Displays recordings stored on device. Can play the recordings,</span>
+<span style="color: #888888">#    and can also make new recordings</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">recorder</span> <span style="color: #008800; font-weight: bold">import</span> record_init
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">gui_functions</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">subprocess</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">wave</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pyaudio</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">math</span>
+
+page <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888"># page of recordings to display</span>
+rec_list <span style="color: #333333">=</span> [] <span style="color: #888888"># array for files</span>
+rec_buttons <span style="color: #333333">=</span> [] <span style="color: #888888"># array for files&#39; display buttons</span>
+last_page <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888"># last page of files</span>
+
+<span style="color: #888888"># display initial screen</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">rec_list_init</span>(screen):
+    screen<span style="color: #333333">.</span>fill(white)
+    <span style="color: #008800; font-weight: bold">global</span> page
+    <span style="color: #008800; font-weight: bold">global</span> rec_list
+    <span style="color: #008800; font-weight: bold">global</span> rec_buttons
+    <span style="color: #008800; font-weight: bold">global</span> last_page
+
+    <span style="color: #888888"># Render and display all visual elements</span>
+    new_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Record&quot;</span>, (<span style="color: #0000DD; font-weight: bold">45</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">70</span>, <span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+    prev_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Prev Page&quot;</span>, (<span style="color: #0000DD; font-weight: bold">125</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">75</span>, <span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+
+    next_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Next Page&quot;</span>, (<span style="color: #0000DD; font-weight: bold">208</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">75</span>, <span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+
+    back_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Back&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">50</span>, <span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;Recordings&quot;</span>, <span style="color: #007020">True</span>, black)
+    rec_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">60</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, rec_button)
+
+    rec_list <span style="color: #333333">=</span> os<span style="color: #333333">.</span>listdir(<span style="background-color: #fff0f0">&quot;/home/pi/final_project/recordings&quot;</span>)
+    rec_buttons <span style="color: #333333">=</span> show_recordings(screen,page)
+    last_page <span style="color: #333333">=</span> <span style="color: #007020">int</span>(math<span style="color: #333333">.</span>ceil(<span style="color: #007020">len</span>(rec_list) <span style="color: #333333">/</span> <span style="color: #6600EE; font-weight: bold">3.0</span>) <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span>)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()       <span style="color: #888888"># display workspace on screen</span>
+
+    <span style="color: #888888"># Check for button presses</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(back_button, pos):
+                    <span style="color: #888888"># Return to main menu</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Back&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">False</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(new_button, pos):
+                    <span style="color: #888888"># Go to recording screen</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Make new recording&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(prev_button, pos):
+                    <span style="color: #888888"># Go to previous page of recordings</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Prev Page&quot;</span>
+                    page <span style="color: #333333">=</span> <span style="color: #007020">max</span>(<span style="color: #0000DD; font-weight: bold">0</span>,page <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span>)
+                    rec_buttons <span style="color: #333333">=</span> show_recordings(screen,page)
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(next_button, pos):
+                    <span style="color: #888888"># Go to next page of recordings</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Next page&quot;</span>
+                    page <span style="color: #333333">=</span> <span style="color: #007020">min</span>(last_page,page <span style="color: #333333">+</span> <span style="color: #0000DD; font-weight: bold">1</span>)
+                    rec_buttons <span style="color: #333333">=</span> show_recordings(screen,page)
+                <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #007020">len</span>(rec_buttons)):
+                    <span style="color: #008800; font-weight: bold">if</span> rec_buttons[i] <span style="color: #000000; font-weight: bold">and</span> click_in_button(rec_buttons[i], pos):
+                        filename <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;/home/pi/final_project/recordings/&#39;</span><span style="color: #333333">+</span><span style="color: #007020">str</span>(rec_list[page<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">3</span><span style="color: #333333">+</span>i])
+                        play_file(screen,filename, page)
+
+<span style="color: #888888"># display the recordings onto the screen</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">show_recordings</span>(screen,page):
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">320</span>,<span style="color: #0000DD; font-weight: bold">130</span>))
+
+    <span style="color: #008800; font-weight: bold">global</span> rec_list
+    rec_list <span style="color: #333333">=</span> os<span style="color: #333333">.</span>listdir(<span style="background-color: #fff0f0">&quot;/home/pi/final_project/recordings&quot;</span>)
+    num_rec <span style="color: #333333">=</span> <span style="color: #007020">len</span>(rec_list)
+
+    x_pos <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">20</span>
+    y_pos <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">60</span>
+    recording_buttons <span style="color: #333333">=</span> []
+
+    <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(page<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">3</span>, page<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">3</span><span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">3</span>):
+        <span style="color: #008800; font-weight: bold">if</span> i <span style="color: #333333">&lt;</span> num_rec:
+            text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(rec_list[i], <span style="color: #007020">True</span>, black)
+            txt_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(topleft<span style="color: #333333">=</span>(x_pos,y_pos<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">40</span><span style="color: #333333">*</span>(i<span style="color: #333333">%</span><span style="color: #0000DD; font-weight: bold">3</span>)))
+            txt_button<span style="color: #333333">.</span>height <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">40</span>
+            screen<span style="color: #333333">.</span>blit(text_surface, txt_button)
+            recording_buttons<span style="color: #333333">.</span>append(txt_button)
+        <span style="color: #008800; font-weight: bold">else</span>:
+            recording_buttons<span style="color: #333333">.</span>append(<span style="color: #007020">False</span>)
+
+    <span style="color: #008800; font-weight: bold">global</span> last_page
+    last_page <span style="color: #333333">=</span> <span style="color: #007020">int</span>(math<span style="color: #333333">.</span>ceil(<span style="color: #007020">len</span>(rec_list) <span style="color: #333333">/</span> <span style="color: #6600EE; font-weight: bold">3.0</span>) <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span>)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+    <span style="color: #008800; font-weight: bold">return</span> recording_buttons
+
+<span style="color: #888888"># play the selected file</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">play_file</span>(screen, filename, page):
+    <span style="color: #888888"># open the file for reading</span>
+    wf <span style="color: #333333">=</span> wave<span style="color: #333333">.</span>open(filename, <span style="background-color: #fff0f0">&#39;rb&#39;</span>)
+    chunk <span style="color: #333333">=</span> <span style="color: #007020">min</span>(wf<span style="color: #333333">.</span>getnframes() <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">10</span>,<span style="color: #0000DD; font-weight: bold">8192</span>)
+
+    <span style="color: #888888"># create an audio object</span>
+    p <span style="color: #333333">=</span> pyaudio<span style="color: #333333">.</span>PyAudio()
+
+    <span style="color: #888888"># open stream based on the wave object which has been input.</span>
+    stream <span style="color: #333333">=</span> p<span style="color: #333333">.</span>open(format <span style="color: #333333">=</span>
+		    p<span style="color: #333333">.</span>get_format_from_width(wf<span style="color: #333333">.</span>getsampwidth()),
+		    channels <span style="color: #333333">=</span> wf<span style="color: #333333">.</span>getnchannels(),
+		    rate <span style="color: #333333">=</span> wf<span style="color: #333333">.</span>getframerate(),
+                    frames_per_buffer <span style="color: #333333">=</span> chunk,
+		    output <span style="color: #333333">=</span> <span style="color: #007020">True</span>)
+
+    <span style="color: #888888"># read data (based on the chunk size)</span>
+    data <span style="color: #333333">=</span> wf<span style="color: #333333">.</span>readframes(chunk)
+
+    <span style="color: #888888"># display the play control buttons</span>
+    stop_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Stop&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">90</span>), (<span style="color: #0000DD; font-weight: bold">50</span>, <span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+    pause_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Pause&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">150</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+    delete_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Delete&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>, <span style="color: #0000DD; font-weight: bold">30</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+    <span style="color: #888888"># play stream (looping from beginning of file to the end)</span>
+    playing <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+    delete <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+    <span style="color: #008800; font-weight: bold">while</span> data <span style="color: #333333">!=</span> <span style="background-color: #fff0f0">&#39;&#39;</span> <span style="color: #000000; font-weight: bold">and</span> playing:
+	<span style="color: #888888"># writing to the stream is what *actually* plays the sound.</span>
+	stream<span style="color: #333333">.</span>write(data)
+	data <span style="color: #333333">=</span> wf<span style="color: #333333">.</span>readframes(chunk)
+
+        <span style="color: #888888"># check for the playing buttons being pressed</span>
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(stop_button, pos):
+                    <span style="color: #888888"># Return to main menu</span>
+                    playing <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(delete_button, pos):
+                    playing <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                    delete <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(pause_button, pos):
+                    paused <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+                    time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.5</span>)
+                    pause_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Play&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">150</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+                    <span style="color: #008800; font-weight: bold">while</span> paused:
+                        time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.1</span>)
+                        <span style="color: #008800; font-weight: bold">for</span> act <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+                            <span style="color: #008800; font-weight: bold">if</span> (act<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                                position <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                                <span style="color: #008800; font-weight: bold">if</span> click_in_button(pause_button, position):
+                                    paused <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                                    pause_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Pause&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">150</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+                                <span style="color: #008800; font-weight: bold">if</span> click_in_button(stop_button,position):
+                                    paused <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                                    playing <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                                <span style="color: #008800; font-weight: bold">if</span> click_in_button(delete_button,position):
+                                    paused <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                                    playing <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+                                    delete <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+
+    <span style="color: #888888"># cleanup stuff.</span>
+    stream<span style="color: #333333">.</span>close()
+    p<span style="color: #333333">.</span>terminate()
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen, white, pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">245</span>,<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">177</span>))
+
+    <span style="color: #008800; font-weight: bold">global</span> rec_buttons
+
+    <span style="color: #008800; font-weight: bold">if</span> delete:
+        cmd <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;rm &quot;&#39;</span> <span style="color: #333333">+</span> filename <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&#39;&quot;&#39;</span>
+        <span style="color: #008800; font-weight: bold">print</span>(cmd)
+        subprocess<span style="color: #333333">.</span>call(cmd,shell<span style="color: #333333">=</span><span style="color: #007020">True</span>)
+        rec_buttons <span style="color: #333333">=</span> show_recordings(screen,page)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># tuner.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#   -Tuner tool for RPi Music Assistant. Shows how in tune the note being</span>
+<span style="color: #888888">#    received on the micrphone is, and can play a note for reference</span>
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">gui_functions</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pyaudio</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">math</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">itertools</span> <span style="color: #008800; font-weight: bold">import</span> izip
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">tone_player</span> <span style="color: #008800; font-weight: bold">import</span> Note
+
+frequency <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">440</span> <span style="color: #888888"># initial note frequency</span>
+note <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;A&quot;</span> <span style="color: #888888"># initial note</span>
+note_ind <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">39</span> <span style="color: #888888"># initial note index</span>
+note_freqs <span style="color: #333333">=</span> [<span style="color: #6600EE; font-weight: bold">4186.01</span>, <span style="color: #6600EE; font-weight: bold">3951.07</span>, <span style="color: #6600EE; font-weight: bold">3729.31</span>, <span style="color: #0000DD; font-weight: bold">3520</span>, <span style="color: #6600EE; font-weight: bold">3322.44</span>,
+                <span style="color: #6600EE; font-weight: bold">3135.96</span>, <span style="color: #6600EE; font-weight: bold">2959.96</span>, <span style="color: #6600EE; font-weight: bold">2793.83</span>, <span style="color: #6600EE; font-weight: bold">2637.02</span>, <span style="color: #6600EE; font-weight: bold">2489.02</span>,
+                <span style="color: #6600EE; font-weight: bold">2349.32</span>, <span style="color: #6600EE; font-weight: bold">2217.46</span>, <span style="color: #0000DD; font-weight: bold">2093</span>, <span style="color: #6600EE; font-weight: bold">1975.53</span>, <span style="color: #6600EE; font-weight: bold">1864.66</span>,
+                <span style="color: #0000DD; font-weight: bold">1760</span>, <span style="color: #6600EE; font-weight: bold">1661.22</span>, <span style="color: #6600EE; font-weight: bold">1567.98</span>, <span style="color: #6600EE; font-weight: bold">1479.98</span>, <span style="color: #6600EE; font-weight: bold">1396.91</span>, <span style="color: #6600EE; font-weight: bold">1318.51</span>,
+                <span style="color: #6600EE; font-weight: bold">1244.51</span>, <span style="color: #6600EE; font-weight: bold">1174.66</span>, <span style="color: #6600EE; font-weight: bold">1108.73</span>, <span style="color: #6600EE; font-weight: bold">1046.5</span>, <span style="color: #6600EE; font-weight: bold">987.77</span>, <span style="color: #6600EE; font-weight: bold">932.33</span>,
+                <span style="color: #0000DD; font-weight: bold">880</span>, <span style="color: #6600EE; font-weight: bold">830.61</span>, <span style="color: #6600EE; font-weight: bold">783.99</span>, <span style="color: #6600EE; font-weight: bold">739.99</span>, <span style="color: #6600EE; font-weight: bold">698.46</span>, <span style="color: #6600EE; font-weight: bold">659.26</span>, <span style="color: #6600EE; font-weight: bold">622.25</span>,
+                <span style="color: #6600EE; font-weight: bold">587.33</span>, <span style="color: #6600EE; font-weight: bold">554.37</span>, <span style="color: #6600EE; font-weight: bold">523.25</span>, <span style="color: #6600EE; font-weight: bold">493.88</span>, <span style="color: #6600EE; font-weight: bold">466.16</span>, <span style="color: #0000DD; font-weight: bold">440</span>, <span style="color: #6600EE; font-weight: bold">415.31</span>,
+                <span style="color: #0000DD; font-weight: bold">392</span>, <span style="color: #0000DD; font-weight: bold">370</span>, <span style="color: #6600EE; font-weight: bold">349.23</span>, <span style="color: #6600EE; font-weight: bold">329.63</span>, <span style="color: #6600EE; font-weight: bold">311.13</span>, <span style="color: #6600EE; font-weight: bold">293.67</span>, <span style="color: #6600EE; font-weight: bold">277.18</span>,
+                <span style="color: #6600EE; font-weight: bold">261.63</span>, <span style="color: #6600EE; font-weight: bold">246.94</span>, <span style="color: #6600EE; font-weight: bold">233.08</span>, <span style="color: #0000DD; font-weight: bold">220</span>, <span style="color: #6600EE; font-weight: bold">207.65</span>, <span style="color: #0000DD; font-weight: bold">196</span>, <span style="color: #0000DD; font-weight: bold">185</span>,
+                <span style="color: #6600EE; font-weight: bold">174.61</span>, <span style="color: #6600EE; font-weight: bold">164.81</span>, <span style="color: #6600EE; font-weight: bold">155.56</span>, <span style="color: #6600EE; font-weight: bold">146.83</span>, <span style="color: #6600EE; font-weight: bold">138.59</span>, <span style="color: #6600EE; font-weight: bold">130.81</span>,
+                <span style="color: #6600EE; font-weight: bold">123.47</span>, <span style="color: #6600EE; font-weight: bold">116.54</span>, <span style="color: #0000DD; font-weight: bold">110</span>, <span style="color: #6600EE; font-weight: bold">103.83</span>, <span style="color: #0000DD; font-weight: bold">98</span>, <span style="color: #6600EE; font-weight: bold">92.5</span>, <span style="color: #6600EE; font-weight: bold">87.31</span>,
+                <span style="color: #6600EE; font-weight: bold">82.41</span>, <span style="color: #6600EE; font-weight: bold">77.78</span>, <span style="color: #6600EE; font-weight: bold">73.42</span>, <span style="color: #6600EE; font-weight: bold">69.3</span>, <span style="color: #6600EE; font-weight: bold">65.41</span>, <span style="color: #6600EE; font-weight: bold">61.74</span>, <span style="color: #6600EE; font-weight: bold">58.27</span>,
+                <span style="color: #0000DD; font-weight: bold">55</span>, <span style="color: #6600EE; font-weight: bold">51.91</span>, <span style="color: #0000DD; font-weight: bold">49</span>, <span style="color: #6600EE; font-weight: bold">46.25</span>, <span style="color: #6600EE; font-weight: bold">43.65</span>, <span style="color: #6600EE; font-weight: bold">41.2</span>, <span style="color: #6600EE; font-weight: bold">38.89</span>, <span style="color: #6600EE; font-weight: bold">36.71</span>,
+                <span style="color: #6600EE; font-weight: bold">34.65</span>, <span style="color: #6600EE; font-weight: bold">32.7</span>, <span style="color: #6600EE; font-weight: bold">30.87</span>, <span style="color: #6600EE; font-weight: bold">29.14</span>, <span style="color: #6600EE; font-weight: bold">27.5</span>]
+note_thrsh <span style="color: #333333">=</span> [<span style="color: #6600EE; font-weight: bold">4068.54</span>, <span style="color: #6600EE; font-weight: bold">3840.19</span>, <span style="color: #6600EE; font-weight: bold">3624.66</span>, <span style="color: #6600EE; font-weight: bold">3421.22</span>, <span style="color: #6600EE; font-weight: bold">3229.2</span>,
+                <span style="color: #6600EE; font-weight: bold">3047.96</span>, <span style="color: #6600EE; font-weight: bold">2876.9</span>, <span style="color: #6600EE; font-weight: bold">2715.43</span>, <span style="color: #6600EE; font-weight: bold">2563.02</span>, <span style="color: #6600EE; font-weight: bold">2419.17</span>,
+                <span style="color: #6600EE; font-weight: bold">2283.39</span>, <span style="color: #6600EE; font-weight: bold">2155.23</span>, <span style="color: #6600EE; font-weight: bold">2034.27</span>, <span style="color: #6600EE; font-weight: bold">1920.1</span>, <span style="color: #6600EE; font-weight: bold">1812.33</span>,
+                <span style="color: #6600EE; font-weight: bold">1710.61</span>, <span style="color: #6600EE; font-weight: bold">1614.6</span>, <span style="color: #6600EE; font-weight: bold">1523.98</span>, <span style="color: #6600EE; font-weight: bold">1438.45</span>, <span style="color: #6600EE; font-weight: bold">1357.71</span>,
+                <span style="color: #6600EE; font-weight: bold">1281.51</span>, <span style="color: #6600EE; font-weight: bold">1209.59</span>, <span style="color: #6600EE; font-weight: bold">1141.7</span>, <span style="color: #6600EE; font-weight: bold">1077.62</span>, <span style="color: #6600EE; font-weight: bold">1017.13</span>,
+                <span style="color: #6600EE; font-weight: bold">960.05</span>, <span style="color: #6600EE; font-weight: bold">906.16</span>, <span style="color: #6600EE; font-weight: bold">855.3</span>, <span style="color: #6600EE; font-weight: bold">807.3</span>, <span style="color: #6600EE; font-weight: bold">761.99</span>, <span style="color: #6600EE; font-weight: bold">719.22</span>,
+                <span style="color: #6600EE; font-weight: bold">678.86</span>, <span style="color: #6600EE; font-weight: bold">640.75</span>, <span style="color: #6600EE; font-weight: bold">604.79</span>, <span style="color: #6600EE; font-weight: bold">570.85</span>, <span style="color: #6600EE; font-weight: bold">538.81</span>,
+                <span style="color: #6600EE; font-weight: bold">508.57</span>, <span style="color: #6600EE; font-weight: bold">480.02</span>, <span style="color: #6600EE; font-weight: bold">453.08</span>, <span style="color: #6600EE; font-weight: bold">427.65</span>, <span style="color: #6600EE; font-weight: bold">403.65</span>,
+                <span style="color: #6600EE; font-weight: bold">380.99</span>, <span style="color: #6600EE; font-weight: bold">359.61</span>, <span style="color: #6600EE; font-weight: bold">339.43</span>, <span style="color: #6600EE; font-weight: bold">320.38</span>, <span style="color: #6600EE; font-weight: bold">302.4</span>,
+                <span style="color: #6600EE; font-weight: bold">285.42</span>, <span style="color: #6600EE; font-weight: bold">269.4</span>, <span style="color: #6600EE; font-weight: bold">254.28</span>, <span style="color: #6600EE; font-weight: bold">240.01</span>, <span style="color: #6600EE; font-weight: bold">226.54</span>,
+                <span style="color: #6600EE; font-weight: bold">213.83</span>, <span style="color: #6600EE; font-weight: bold">201.83</span>, <span style="color: #6600EE; font-weight: bold">190.5</span>, <span style="color: #6600EE; font-weight: bold">179.81</span>, <span style="color: #6600EE; font-weight: bold">169.71</span>,
+                <span style="color: #6600EE; font-weight: bold">160.19</span>, <span style="color: #6600EE; font-weight: bold">151.2</span>, <span style="color: #6600EE; font-weight: bold">142.71</span>, <span style="color: #6600EE; font-weight: bold">134.7</span>, <span style="color: #6600EE; font-weight: bold">127.14</span>,
+                <span style="color: #6600EE; font-weight: bold">120.01</span>, <span style="color: #6600EE; font-weight: bold">113.27</span>, <span style="color: #6600EE; font-weight: bold">106.91</span>, <span style="color: #6600EE; font-weight: bold">100.91</span>, <span style="color: #6600EE; font-weight: bold">95.25</span>,
+                <span style="color: #6600EE; font-weight: bold">89.9</span>, <span style="color: #6600EE; font-weight: bold">84.86</span>, <span style="color: #6600EE; font-weight: bold">80.09</span>, <span style="color: #6600EE; font-weight: bold">75.6</span>, <span style="color: #6600EE; font-weight: bold">71.36</span>, <span style="color: #6600EE; font-weight: bold">67.35</span>,
+                <span style="color: #6600EE; font-weight: bold">63.57</span>, <span style="color: #0000DD; font-weight: bold">60</span>, <span style="color: #6600EE; font-weight: bold">56.64</span>, <span style="color: #6600EE; font-weight: bold">53.46</span>, <span style="color: #6600EE; font-weight: bold">50.46</span>, <span style="color: #6600EE; font-weight: bold">47.62</span>,
+                <span style="color: #6600EE; font-weight: bold">44.95</span>, <span style="color: #6600EE; font-weight: bold">42.43</span>, <span style="color: #6600EE; font-weight: bold">40.05</span>, <span style="color: #6600EE; font-weight: bold">37.8</span>, <span style="color: #6600EE; font-weight: bold">35.68</span>, <span style="color: #6600EE; font-weight: bold">33.68</span>,
+                <span style="color: #6600EE; font-weight: bold">31.79</span>, <span style="color: #0000DD; font-weight: bold">30</span>, <span style="color: #6600EE; font-weight: bold">28.32</span>, <span style="color: #0000DD; font-weight: bold">0</span>]
+notes_list <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">&quot;C&quot;</span>, <span style="background-color: #fff0f0">&quot;B&quot;</span>, <span style="background-color: #fff0f0">&quot;Bb&quot;</span>, <span style="background-color: #fff0f0">&quot;A&quot;</span>, <span style="background-color: #fff0f0">&quot;Ab&quot;</span>, <span style="background-color: #fff0f0">&quot;G&quot;</span>, <span style="background-color: #fff0f0">&quot;F#&quot;</span>, <span style="background-color: #fff0f0">&quot;F&quot;</span>, <span style="background-color: #fff0f0">&quot;E&quot;</span>, <span style="background-color: #fff0f0">&quot;Eb&quot;</span>, <span style="background-color: #fff0f0">&quot;D&quot;</span>, <span style="background-color: #fff0f0">&quot;C#&quot;</span>]
+
+<span style="color: #888888"># displays and sets up the tuner menu</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">tuner_init</span>(screen):
+    <span style="color: #008800; font-weight: bold">global</span> frequency
+    <span style="color: #008800; font-weight: bold">global</span> note
+    <span style="color: #008800; font-weight: bold">global</span> note_ind
+    screen<span style="color: #333333">.</span>fill(white)
+
+    <span style="color: #888888"># Render and display all visual elements</span>
+    listen_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Start Listening&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">110</span>), (<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+    play_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Play Note&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">160</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+    minus_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;-&quot;</span>, (<span style="color: #0000DD; font-weight: bold">100</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">30</span>,<span style="color: #0000DD; font-weight: bold">30</span>), white, button_font)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;Frequency&quot;</span>, <span style="color: #007020">True</span>, black)
+    freq_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">210</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, freq_button)
+
+    plus_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;+&quot;</span>, (<span style="color: #0000DD; font-weight: bold">220</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">30</span>,<span style="color: #0000DD; font-weight: bold">30</span>), white, button_font)
+    back_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Back&quot;</span>, (<span style="color: #0000DD; font-weight: bold">280</span>,<span style="color: #0000DD; font-weight: bold">210</span>), (<span style="color: #0000DD; font-weight: bold">50</span>,<span style="color: #0000DD; font-weight: bold">50</span>), white, button_font)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(note, <span style="color: #007020">True</span>, black)
+    note_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, note_button)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="color: #007020">str</span>(frequency) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot; Hz&quot;</span>, <span style="color: #007020">True</span>, black)
+    hertz_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">200</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, hertz_button)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()       <span style="color: #888888"># display workspace on screen</span>
+
+    <span style="color: #888888"># Check for button presses</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(back_button, pos):
+                    <span style="color: #888888"># Return to main menu</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Back&quot;</span>
+                    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">True</span>
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(listen_button, pos):
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Listening&quot;</span>
+                    start_listening(screen)
+                    update_freq(screen,frequency)
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(play_button, pos):
+                    <span style="color: #888888"># Play the specified note</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;Play note&quot;</span>
+                    play_note(screen, frequency)
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(minus_button, pos):
+                    <span style="color: #888888"># Decrease the frequency of the note to play</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;-&quot;</span>
+                    note_ind <span style="color: #333333">=</span> <span style="color: #007020">min</span>(note_ind<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">1</span>,<span style="color: #007020">len</span>(note_thrsh)<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>)
+                    frequency <span style="color: #333333">=</span> note_freqs[note_ind]
+                    update_freq(screen, frequency)
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(plus_button, pos):
+                    <span style="color: #888888"># Increase the frequency of the note to play</span>
+                    <span style="color: #008800; font-weight: bold">print</span> <span style="background-color: #fff0f0">&quot;+&quot;</span>
+                    note_ind <span style="color: #333333">=</span> <span style="color: #007020">max</span>(note_ind<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>,<span style="color: #0000DD; font-weight: bold">0</span>)
+                    frequency <span style="color: #333333">=</span> note_freqs[note_ind]
+                    update_freq(screen, frequency)
+
+<span style="color: #888888"># update the frequency display</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">update_freq</span>(screen, freq):
+    freq_rect <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">200</span>,<span style="color: #0000DD; font-weight: bold">30</span>,<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">20</span>)
+    freq_rect<span style="color: #333333">.</span>center <span style="color: #333333">=</span> (<span style="color: #0000DD; font-weight: bold">200</span>,<span style="color: #0000DD; font-weight: bold">30</span>)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,freq_rect)
+
+    text_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(<span style="background-color: #fff0f0">&quot;</span><span style="background-color: #eeeeee">%4.0f</span><span style="background-color: #fff0f0"> Hz&quot;</span> <span style="color: #333333">%</span> freq, <span style="color: #007020">True</span>, black)
+    freq_button <span style="color: #333333">=</span> text_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">200</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(text_surface, freq_button)
+
+    index <span style="color: #333333">=</span> get_note(freq)
+    note <span style="color: #333333">=</span> notes_list[index <span style="color: #333333">%</span> <span style="color: #007020">len</span>(notes_list)]
+    note_rect <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">20</span>)
+    note_rect<span style="color: #333333">.</span>center <span style="color: #333333">=</span> (<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">30</span>)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,note_rect)
+
+    note_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(note, <span style="color: #007020">True</span>, black)
+    note_button <span style="color: #333333">=</span> note_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">30</span>))
+    screen<span style="color: #333333">.</span>blit(note_surface, note_button)
+
+    freq_true <span style="color: #333333">=</span> note_freqs[index]
+    margin <span style="color: #333333">=</span> <span style="color: #6600EE; font-weight: bold">0.1</span>
+    tune_symbol <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39; &#39;</span>
+    <span style="color: #008800; font-weight: bold">if</span> (freq <span style="color: #333333">-</span> freq_true <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>):
+        freq_step <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">10</span>
+        <span style="color: #008800; font-weight: bold">try</span>:
+            freq_step <span style="color: #333333">=</span> note_freqs[index<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">-</span>note_freqs[index]
+        <span style="color: #008800; font-weight: bold">except</span>:
+            freq_step <span style="color: #333333">=</span> <span style="color: #6600EE; font-weight: bold">200.0</span>
+        <span style="color: #008800; font-weight: bold">if</span> (freq<span style="color: #333333">-</span>freq_true)<span style="color: #333333">/</span>freq_step <span style="color: #333333">&gt;</span> margin:
+            tune_symbol <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;#&#39;</span>
+    <span style="color: #008800; font-weight: bold">elif</span> (freq <span style="color: #333333">-</span> freq_true <span style="color: #333333">&lt;</span> <span style="color: #0000DD; font-weight: bold">0</span>):
+        freq_step <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">10</span>
+        <span style="color: #008800; font-weight: bold">try</span>:
+            freq_step <span style="color: #333333">=</span> note_freqs[index]<span style="color: #333333">-</span>note_freqs[index<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">1</span>]
+        <span style="color: #008800; font-weight: bold">except</span>:
+            freq_step <span style="color: #333333">=</span> <span style="color: #6600EE; font-weight: bold">1.6</span>
+        <span style="color: #008800; font-weight: bold">if</span> (freq<span style="color: #333333">-</span>freq_true)<span style="color: #333333">/</span>freq_step <span style="color: #333333">&lt;</span> <span style="color: #333333">-</span>margin:
+            tune_symbol <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;b&#39;</span>
+
+    tune_rect <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>Rect(<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">0</span>,<span style="color: #0000DD; font-weight: bold">40</span>,<span style="color: #0000DD; font-weight: bold">20</span>)
+    tune_rect<span style="color: #333333">.</span>center <span style="color: #333333">=</span> (<span style="color: #0000DD; font-weight: bold">120</span>, <span style="color: #0000DD; font-weight: bold">50</span>)
+    pygame<span style="color: #333333">.</span>draw<span style="color: #333333">.</span>rect(screen,white,tune_rect)
+    sharp_surface <span style="color: #333333">=</span> button_font<span style="color: #333333">.</span>render(tune_symbol, <span style="color: #007020">True</span>, black)
+    sharp_text <span style="color: #333333">=</span> sharp_surface<span style="color: #333333">.</span>get_rect(center<span style="color: #333333">=</span>(<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">50</span>))
+    screen<span style="color: #333333">.</span>blit(sharp_surface, sharp_text)
+
+    pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
+
+<span style="color: #888888"># listen for the note to be tuned</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">start_listening</span>(screen):
+
+    listen_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Stop Listening&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">110</span>), (<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+
+    CHUNK <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">4096</span> <span style="color: #888888"># number of data points to read at a time</span>
+    RATE <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">8000</span> <span style="color: #888888"># time resolution of the recording device (Hz)</span>
+
+    p<span style="color: #333333">=</span>pyaudio<span style="color: #333333">.</span>PyAudio() <span style="color: #888888"># start the PyAudio class</span>
+    stream<span style="color: #333333">=</span>p<span style="color: #333333">.</span>open(format<span style="color: #333333">=</span>pyaudio<span style="color: #333333">.</span>paInt16,channels<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">1</span>,rate<span style="color: #333333">=</span>RATE,<span style="color: #007020">input</span><span style="color: #333333">=</span><span style="color: #007020">True</span>,
+                  frames_per_buffer<span style="color: #333333">=</span>CHUNK) <span style="color: #888888">#uses default input device</span>
+
+    listening <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+    <span style="color: #888888"># create a numpy array holding a single read of audio data</span>
+    <span style="color: #008800; font-weight: bold">while</span> listening:
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(listen_button,pos):
+                    listening <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+
+        data <span style="color: #333333">=</span> np<span style="color: #333333">.</span>fromstring(stream<span style="color: #333333">.</span>read(CHUNK),dtype<span style="color: #333333">=</span>np<span style="color: #333333">.</span>int16)
+        data <span style="color: #333333">=</span> data <span style="color: #333333">*</span> np<span style="color: #333333">.</span>hanning(<span style="color: #007020">len</span>(data)) <span style="color: #888888"># smooth the FFT by windowing data</span>
+        fft <span style="color: #333333">=</span> <span style="color: #007020">abs</span>(np<span style="color: #333333">.</span>fft<span style="color: #333333">.</span>fft(data)<span style="color: #333333">.</span>real)
+        fft <span style="color: #333333">=</span> fft[:<span style="color: #007020">int</span>(<span style="color: #007020">len</span>(fft)<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">2</span>)] <span style="color: #888888"># keep only first half</span>
+        freq <span style="color: #333333">=</span> np<span style="color: #333333">.</span>fft<span style="color: #333333">.</span>fftfreq(CHUNK,<span style="color: #6600EE; font-weight: bold">1.0</span><span style="color: #333333">/</span>RATE)
+        freq <span style="color: #333333">=</span> freq[:<span style="color: #007020">int</span>(<span style="color: #007020">len</span>(freq)<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">2</span>)] <span style="color: #888888"># keep only first half</span>
+        freqPeak <span style="color: #333333">=</span> freq[np<span style="color: #333333">.</span>where(fft<span style="color: #333333">==</span>np<span style="color: #333333">.</span>max(fft))[<span style="color: #0000DD; font-weight: bold">0</span>][<span style="color: #0000DD; font-weight: bold">0</span>]]<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">1</span>
+        <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;peak frequency: </span><span style="background-color: #eeeeee">%d</span><span style="background-color: #fff0f0"> Hz&quot;</span><span style="color: #333333">%</span>freqPeak)
+        update_freq(screen,freqPeak)
+
+    listen_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Start Listening&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">110</span>), (<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+    <span style="color: #888888"># close the stream gracefully</span>
+    stream<span style="color: #333333">.</span>stop_stream()
+    stream<span style="color: #333333">.</span>close()
+    p<span style="color: #333333">.</span>terminate()
+
+<span style="color: #888888"># plays a note at the frequency specified</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">play_note</span>(screen, freq):
+
+    play_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Stop Note&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">160</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+    playing <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+    tone <span style="color: #333333">=</span> Note(freq)
+    tone<span style="color: #333333">.</span>play(<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>)
+    <span style="color: #008800; font-weight: bold">while</span> playing:
+        time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.2</span>)
+        <span style="color: #008800; font-weight: bold">for</span> action <span style="color: #000000; font-weight: bold">in</span> pygame<span style="color: #333333">.</span>event<span style="color: #333333">.</span>get():
+            <span style="color: #008800; font-weight: bold">if</span> (action<span style="color: #333333">.</span>type <span style="color: #000000; font-weight: bold">is</span> MOUSEBUTTONUP):
+                pos <span style="color: #333333">=</span> pygame<span style="color: #333333">.</span>mouse<span style="color: #333333">.</span>get_pos()
+                <span style="color: #008800; font-weight: bold">if</span> click_in_button(play_button,pos):
+                    playing <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+    tone<span style="color: #333333">.</span>stop()
+    play_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Start Note&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>,<span style="color: #0000DD; font-weight: bold">160</span>), (<span style="color: #0000DD; font-weight: bold">80</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
+
+<span style="color: #888888"># determine what note is being received</span>
+<span style="color: #888888"># the frequency must be greater than 0</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">get_note</span>(freq):
+    <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #007020">len</span>(note_thrsh)):
+        <span style="color: #008800; font-weight: bold">if</span> freq <span style="color: #333333">&gt;</span> note_thrsh[i]:
+            <span style="color: #008800; font-weight: bold">return</span> i
+    <span style="color: #008800; font-weight: bold">return</span> <span style="background-color: #fff0f0">&quot;Not valid&quot;</span>
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># tone_player.py</span>
+<span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
+<span style="color: #888888"># adw75, jt765</span>
+<span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
+<span style="color: #888888">#</span>
+<span style="color: #888888"># Note class courtesy of hortonew: https://pythonexample.com/code/pygame-play-sound-sample/</span>
+<span style="color: #888888">#</span>
+<span style="color: #888888"># Run with the following command:</span>
+<span style="color: #888888">#   python pygame-play-tone.py</span>
+
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">array</span> <span style="color: #008800; font-weight: bold">import</span> array
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">time</span> <span style="color: #008800; font-weight: bold">import</span> sleep
+
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.mixer</span> <span style="color: #008800; font-weight: bold">import</span> Sound, get_init, pre_init
+
+<span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">Note</span>(Sound):
+    <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">__init__</span>(<span style="color: #007020">self</span>, frequency, volume<span style="color: #333333">=.</span><span style="color: #0000DD; font-weight: bold">1</span>):
+        <span style="color: #007020">self</span><span style="color: #333333">.</span>frequency <span style="color: #333333">=</span> frequency
+        Sound<span style="color: #333333">.</span>__init__(<span style="color: #007020">self</span>, <span style="color: #007020">buffer</span><span style="color: #333333">=</span><span style="color: #007020">self</span><span style="color: #333333">.</span>build_samples())
+        <span style="color: #007020">self</span><span style="color: #333333">.</span>set_volume(volume)
+
+    <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">build_samples</span>(<span style="color: #007020">self</span>):
+        period <span style="color: #333333">=</span> <span style="color: #007020">int</span>(<span style="color: #007020">round</span>(get_init()[<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">/</span> <span style="color: #007020">self</span><span style="color: #333333">.</span>frequency))
+        samples <span style="color: #333333">=</span> array(<span style="background-color: #fff0f0">&quot;h&quot;</span>, [<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">*</span> period)
+        amplitude <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">2</span> <span style="color: #333333">**</span> (<span style="color: #007020">abs</span>(get_init()[<span style="color: #0000DD; font-weight: bold">1</span>]) <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span>) <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">1</span>
+        <span style="color: #008800; font-weight: bold">for</span> time <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">xrange</span>(period):
+            <span style="color: #008800; font-weight: bold">if</span> time <span style="color: #333333">&lt;</span> period <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>:
+                samples[time] <span style="color: #333333">=</span> amplitude
+            <span style="color: #008800; font-weight: bold">else</span>:
+                samples[time] <span style="color: #333333">=</span> <span style="color: #333333">-</span>amplitude
+        <span style="color: #008800; font-weight: bold">return</span> samples
+
+<span style="color: #008800; font-weight: bold">if</span> __name__ <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&quot;__main__&quot;</span>
+</pre></div>
+
+
+
+
+
 
 
 
