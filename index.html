@@ -104,6 +104,15 @@
       <div style="text-align:center;">
               <h2>Design</h2>
               <p style="text-align: left;padding: 0px 30px;">Include design steps involved in the project. Please include any issues you experienced as well as well as smooth progress in the various phases of your project. Describe testing you performed to confirm that development steps of the project performed as planned.</p>
+	      <p style="text-align: left;padding: 0px 30px;">Our project can be divided into four major parts: menu display and navigation, the metronome, the tuner, and the recorder. The initial designs for these screens are shown in Figure 1. In terms of hardware, Figure 2 shows the components used and connections among them for the device. </p>
+      </div>
+      <div style="text-align:center;">
+	      <h2>1. Menu Display and Navigation</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The pygame library was used for creating the various menu screens and touchscreen buttons that allowed for control by the user. The initial designs for these screens are shown in Figure 1. A different file was created to handle the functionality for each screen, and they are called on by an overall controlling file that manages the navigation between each menu. When the RPi Music Assistant boots up, it starts at the main menu which contains touchscreen buttons for each of the musical tools and quitting out of the application. </p>
+      </div>
+      <div style="text-align:center;">
+	      <h2>2. Metronome</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The metronome provides visual and audio cues at a constant pace, and this helps a musician maintain a consistent tempo when playing. The standard used for the tempo is beats per minute (bpm), which can be adjusted by the user through onscreen buttons. The menu for the metronome contains three buttons for returning to the main menu, increasing the bpm, and decreasing the bpm. Other visual elements include the current bpm setting, a blinking red circle, and a line that bounces left and right. The bpm is maintained as a global variable in the metronome file, so when either of the bpm buttons are pressed, this value is updated accordingly. Additionally, the new bpm is displayed onto the screen. To have the blinking circle and bouncing line follow the timing of the given bpm, we used the time library and set display behavior based on the bpm value. </p>
       </div>
       <div class="row">
           <div class="col-md-6" style="text-align:center;">
@@ -120,6 +129,7 @@
 
       <div style="text-align:center;">
               <h2>Testing</h2>
+	      <p style="text-align: justify;padding: 0px 30px;"> (We can probably combine this with the "Design" section) </p>
               <p style="text-align: justify;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
       </div>
 
