@@ -143,17 +143,23 @@
           <img class="img" src="pics/tuner.jpg" alt="Tuner screen." height="240">
           <p>Figure 6. Tuner screen. Can play a selected note and indicate how in tune the note being received is.</p>
 	  <p style="text-align: left;padding: 0px 30px;">In order to play different notes, we had to store a list of notes and their frequencies in the tuner file and then call on a specific index of these lists to match the note to be played. Additionally, for the listening functionality, we needed to determine what note was being received in order to decide if its intonation was flat or sharp. To do this, we set thresholds for each note so that if the frequency received was between a certain range, we would know what note it was. The thresholds were simply set as the average frequency between two consecutive notes. To play a given note, we decided to output a sine wave with frequency equal to the specified note's frequency. We accomplished this by (explain how to play a sine wave in python) </p>
+          <img class="img" src="pics/tuner2.jpg" alt="Tuner screen 2." height="240">
+          <p>Figure 7. Tuner listening screen. The symbol underneath the note in the top left indicates if the input is flat or sharp.</p>
       </div>
       <div style="text-align:center;">
 	  <h2>4. Recorder</h2>
 	  <p style="text-align: left;padding: 0px 30px;">The recorder consists of two parts: displaying the list of recordings, and making a new recording. The recording list screen displays recordings stored on the device three at a time and contains buttons for scrolling between pages of recordings, moving to a new screen to make a recording, and returning to the main menu. Additionally, when one of the recordings is touched, the recording will play, and three additional buttons for deleting, stopping, and pausing the recording will show. The completed recording list screen is shown in Figure 7.</p>
           <img class="img" src="pics/record_list.jpg" alt="Recording list screen." height="240">
-          <p>Figure 7. Recording list screen. Shows all recordings on the device and can play a selected one.</p>
+          <p>Figure 8. Recording list screen. Shows all recordings on the device and can play a selected one.</p>
+          <img class="img" src="pics/record_list2.jpg" alt="Recording list screen 2." height="240">
+          <p>Figure 9. Recording list playback screen. Can delete, stop, or pause the file that is playing.</p>
 	  <p style="text-align: left;padding: 0px 30px;"> The recordings are stored in a local directory on the device and are shown three at a time on the screen. After obtaining the list of files in the directory through the function "os.listdir()", we used a global variable to keep track of which page of recordings to display. For the three recordings to be shown, we created a pygame screen button for each and flipped them onto the display. Then, if a recording's button was tapped by the user, we would call a function to create and display the delete, stop, and pause buttons, and then play the file.</p>
 	  <p style="text-align: left;padding: 0px 30px;">The recordings are all made to be in .wav format, so we opened the file using the "wave.open()" function. Then, we used the PyAudio library to handle playback of the recording. This works by opening a stream based on the channels, frame rate, chunk size, and format of the opened file, and then reading the file's data based on the chunk size. To produce the sound, the data is continuously written to the stream until the file has completed playing. In order to control the playback of the file, while the data is written to the stream, we also have to check for any button presses. If "Stop" is pressed, then we stop writing to the stream, if "Delete" is pressed, we also stop writing to the stream and then delete the file, and if "pause" is pressed, we enter a while loop to prevent writing to the stream. Here, the pause button changes to a "Play" button, and if this button is pressed, then we exit this while loop and continue writing. When the stream is paused, the "Stop" and "Delete" buttons still can be pressed. Once writing to the stream has finished, we redisplay the recording list and remove the extra playback buttons.</p>
 	  <p style="text-align: left;padding: 0px 30px;">When making a new recording, there are only two buttons, one for starting the recording and the other for returning to the recording list menu. Once the "Start" button is pressed, the audio received from the microphone starts to be recorded, and the display on the screen will show a "Stop" button, the duration of the recording and a blinking red dot. Once the "Stop" button is pressed, the recording stops and then writes and saves a file to the directory containing all of the recordings. The file name is simply made to be the date and time that the recording was taken. The PyAudio library was used again in this case to record the audio. (explain how it recorded the audio) </p>
           <img class="img" src="pics/recorder.jpg" alt="Recorder screen." height="240">
-          <p>Figure 8. Recorder screen. Allows user to make a recording that is then saved to the device.</p>
+          <p>Figure 10. Recorder screen. Allows user to make a recording that is then saved to the device.</p>
+          <img class="img" src="pics/recorder2.jpg" alt="Recorder screen 2." height="240">
+          <p>Figure 11. Recorder screen while making a new recording.</p>
       </div>
 
     <hr id='testing'>
@@ -177,7 +183,6 @@
 
       <div style="text-align:center;">
               <h2>Conclusions</h2>
-              <p style="text-align: left;padding: 0px 30px;">What results did you project achieve?  What did you discover that definitely did not work?</p>
               <p style="text-align: left;padding: 0px 30px;">For our project, we were able to successfully make the device that we had designed and include all of the functionality that we intended for it. The metronome can provide audio and visual cues to help the user maintain a given tempo, and the tuner can tell the user how accurate their intonation is. Although the audio input for the tuner does seem to pick up a lot of background noise, the tuner has very high accuracy when determining the frequency of the input. The recorder tool allows the user to make new recordings and also listen to any of them that are stored on the device. The quality of the audio playback of the recordings is good, although it is not completely smooth. Overall, despite some features not working as perfectly as we would have liked, the result of our project is a useful and helpful tool to assist musicians in their practice.</p>
       </div>
 
