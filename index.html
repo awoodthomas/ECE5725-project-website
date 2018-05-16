@@ -185,7 +185,9 @@
           <h2>References</h2>
           <a href="http://getbootstrap.com/">Bootstrap</a><br>
           <a href="https://sourceforge.net/p/raspberry-gpio-python/wiki/Home/">R-Pi GPIO Document</a><br>
-          <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+          <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a><br>
+          <a href="https://www.swharden.com/wp/2016-07-19-realtime-audio-visualization-in-python/">Scott W. Harden's Project in Real Time Audio Visualization.</a><br>
+          <a href="https://pythonexample.com/code/pygame-play-sound-sample/">PyGame example for constant frequency sound generation.</a></div>
       </div>
 
     <hr>
@@ -833,6 +835,8 @@ last_page <span style="color: #333333">=</span> <span style="color: #0000DD; fon
 <span style="color: #888888"># ECE5725 Final Project, 5/13/18</span>
 <span style="color: #888888">#   -Tuner tool for RPi Music Assistant. Shows how in tune the note being</span>
 <span style="color: #888888">#    received on the micrphone is, and can play a note for reference</span>
+<span style="color: #888888"># frequency detection code is courtesy of James Harden&#39;s open source project in</span>
+<span style="color: #888888"># real time audio visualization in Python: https://www.swharden.com/wp/2016-07-19-realtime-audio-visualization-in-python/</span>
 
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span> <span style="color: #888888"># Import pygame graphics library</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi.GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
@@ -990,6 +994,8 @@ notes_list <span style="color: #333333">=</span> [<span style="background-color:
     pygame<span style="color: #333333">.</span>display<span style="color: #333333">.</span>flip()
 
 <span style="color: #888888"># listen for the note to be tuned</span>
+<span style="color: #888888"># frequency detection courtesy of Scott Harden&#39;s project in real time audio visualization</span>
+<span style="color: #888888"># in Python https://www.swharden.com/wp/2016-07-19-realtime-audio-visualization-in-python/</span>
 <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">start_listening</span>(screen):
 
     listen_button <span style="color: #333333">=</span> show_button(screen, <span style="background-color: #fff0f0">&quot;Stop Listening&quot;</span>, (<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">110</span>), (<span style="color: #0000DD; font-weight: bold">120</span>,<span style="color: #0000DD; font-weight: bold">40</span>), white, button_font)
@@ -1052,6 +1058,7 @@ notes_list <span style="color: #333333">=</span> [<span style="background-color:
     <span style="color: #008800; font-weight: bold">return</span> <span style="background-color: #fff0f0">&quot;Not valid&quot;</span>
 </pre></div>
 
+
 <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888"># tone_player.py</span>
 <span style="color: #888888"># Alexander Wood-Thomas, Jon Tsai</span>
 <span style="color: #888888"># adw75, jt765</span>
@@ -1084,8 +1091,6 @@ notes_list <span style="color: #333333">=</span> [<span style="background-color:
             <span style="color: #008800; font-weight: bold">else</span>:
                 samples[time] <span style="color: #333333">=</span> <span style="color: #333333">-</span>amplitude
         <span style="color: #008800; font-weight: bold">return</span> samples
-
-<span style="color: #008800; font-weight: bold">if</span> __name__ <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&quot;__main__&quot;</span>
 </pre></div>
 
 
