@@ -106,14 +106,6 @@
               <p style="text-align: left;padding: 0px 30px;">Include design steps involved in the project. Please include any issues you experienced as well as well as smooth progress in the various phases of your project. Describe testing you performed to confirm that development steps of the project performed as planned.</p>
 	      <p style="text-align: left;padding: 0px 30px;">Our project can be divided into four major parts: menu display and navigation, the metronome, the tuner, and the recorder. The initial designs for these screens are shown in Figure 1. In terms of hardware, Figure 2 shows the components used and connections among them for the device. </p>
       </div>
-      <div style="text-align:center;">
-	      <h2>1. Menu Display and Navigation</h2>
-	      <p style="text-align: left;padding: 0px 30px;">The pygame library was used for creating the various menu screens and touchscreen buttons that allowed for control by the user. The initial designs for these screens are shown in Figure 1. A different file was created to handle the functionality for each screen, and they are called on by an overall controlling file that manages the navigation between each menu. When the RPi Music Assistant boots up, it starts at the main menu which contains touchscreen buttons for each of the musical tools and quitting out of the application. </p>
-      </div>
-      <div style="text-align:center;">
-	      <h2>2. Metronome</h2>
-	      <p style="text-align: left;padding: 0px 30px;">The metronome provides visual and audio cues at a constant pace, and this helps a musician maintain a consistent tempo when playing. The standard used for the tempo is beats per minute (bpm), which can be adjusted by the user through onscreen buttons. The menu for the metronome contains three buttons for returning to the main menu, increasing the bpm, and decreasing the bpm. Other visual elements include the current bpm setting, a blinking red circle, and a line that bounces left and right. The bpm is maintained as a global variable in the metronome file, so when either of the bpm buttons are pressed, this value is updated accordingly. Additionally, the new bpm is displayed onto the screen. To have the blinking circle and bouncing line follow the timing of the given bpm, we used the time library and set display behavior based on the bpm value. </p>
-      </div>
       <div class="row">
           <div class="col-md-6" style="text-align:center;">
           <img class="img" src="pics/concept_drawings.PNG" alt="Concept sketches for app screens." height="240">
@@ -123,6 +115,36 @@
           <img class="img" src="pics/music_hardware.PNG" alt="Sketch of required hardware." height="240">
           <p>Figure 2. An initial diagram for planning the required hardware. Other than the Pi and PiTFT screen, the project only requires a USB microphone and speakers.</p>
           </div>
+	  <div style="text-align:center;">
+          <img class="img" src="pics/setup.jpg" alt="Device setup." height="240">
+          <p>Figure 3. Physical setup of device.</p>
+	  </div>
+      </div>
+      <div style="text-align:center;">
+	      <h2>1. Menu Display and Navigation</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The pygame library was used for creating the various menu screens and touchscreen buttons that allowed for control by the user. The initial designs for these screens are shown in Figure 1. A different file was created to handle the functionality for each screen, and they are called on by an overall controlling file that manages the navigation between each menu. When the RPi Music Assistant boots up, it starts at the main menu which contains touchscreen buttons for each of the musical tools and quitting out of the application. </p>
+              <img class="img" src="pics/main_menu.jpg" alt="Main menu screen." height="240">
+              <p>Figure 4. Main menu screen. Contains buttons for each of the music tools.</p>
+      </div>
+      <div style="text-align:center;">
+	      <h2>2. Metronome</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The metronome provides visual and audio cues at a constant pace, and this helps a musician maintain a consistent tempo when playing. The standard used for the tempo is beats per minute (bpm), which can be adjusted by the user through onscreen buttons. The menu for the metronome contains three buttons for returning to the main menu, increasing the bpm, and decreasing the bpm. Other visual elements include the current bpm setting, a blinking red circle, and a line that bounces left and right. The bpm is maintained as a global variable in the metronome file, so when either of the bpm buttons are pressed, this value is updated accordingly. Additionally, the new bpm is displayed onto the screen. To have the blinking circle and bouncing line follow the timing of the given bpm, we used the time library and set display behavior based on the bpm value. </p>
+              <img class="img" src="pics/metronome.jpg" alt="Metronome screen." height="240">
+              <p>Figure 5. Metronome menu screen. The line bounces left and right and the red dot blinks according to the bpm rate.</p>
+      </div>
+      <div style="text-align:center;">
+	      <h2>3. Tuner</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The tuner...</p>
+              <img class="img" src="pics/tuner.jpg" alt="Tuner screen." height="240">
+              <p>Figure 6. Tuner screen. Can play a selected note and indicate how in tune the note being received is.</p>
+      </div>
+      <div style="text-align:center;">
+	      <h2>4. Recorder</h2>
+	      <p style="text-align: left;padding: 0px 30px;">The recorder...</p>
+              <img class="img" src="pics/recorder.jpg" alt="Recorder screen." height="240">
+              <p>Figure 7. Recorder screen. Allows user to make a recording that is then saved to the device.</p>
+              <img class="img" src="pics/record_list.jpg" alt="Recording list screen." height="240">
+              <p>Figure 8. Recording list screen. Shows all recordings on the device and can play a selected one.</p>
       </div>
 
     <hr id='testing'>
