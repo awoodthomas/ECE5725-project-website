@@ -78,22 +78,24 @@
 
       <div style="text-align:center;">
               <h2>Introduction</h2>
-              <p style="text-align: left;padding: 0px 30px;">Short description of what was done for the project.</p>
+              <p> copied from progress update, needs to be changed </p>
+              <p style="text-align: justify;padding: 0px 30px;">Initially, the device will start up and display the main menu which will simply consist of one on screen button each for the metronome, tuner, and recorder. Tapping on one of these buttons will load the corresponding tool that was selected. In terms of the metronome, it would display a pointer bouncing left and right with a blinking dot at the rate of a selected beats per minute (bpm). A simple beat corresponding to the bpm rate would also be played through a built-in speaker. The screen would also contain additional buttons for increasing or decreasing the bpm rate, and for returning to the main menu. For the tuner, there will be a pointer to show how in tune the note being received on the microphone is. If the note is completely in tune, then the pointer will be completely vertical, but it will shift left or right if the note is flat or sharp respectively. The tuner will also display what note is being received, such as Bb or C. It can also play a note at a specified frequency to serve as a reference for playing. The tuner screen will have buttons for playing the specified note, increasing or decreasing the note’s pitch, and returning to the main menu. The recorder screen will display all current recordings on the system along with their duration. Tapping on one of these recordings will play it on the speaker. There will be buttons for displaying the previous or next page of recordings, deleting recordings, making a new recording, and returning to the main menu. If the button to make a new recording is selected, then a new screen will be displayed. This new screen will contain buttons for starting/stopping the recording, resetting it, saving it, and returning to the previous menu. The screen will also display the duration of the recording and a small dot to indicate if it is recording or not. All of these functionalities would be implemented as written programs contained in the Raspberry Pi, and Figure 1 shows a general outline for how each of the menu screens will look.
+</p>
       </div>
 
     <hr id='obj'>
 
       <div class="row">
           <div class="col-md-4" style="text-align:center;">
-          <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+          <img class="img" src="pics/music-player.png" alt="Music Note Icon" height="200">
           </div>
           <div class="col-md-8" style="font-size:18px;">
           <h2>Project Objective:</h2>
-          <p> A succinct (3-4 line) summary of your problem statement </p>
+          Create a help musicians practice and improve. It should include:
           <ul>
-              <li>some important objectives.some important objectives.some important objectives.some important objectives.</li>
-                <li>some other important objectives.</li>
-            <li>some not-that-important objectives.</li>
+              <li>A metronome to maintain consistent tempo.</li>
+              <li>A tuner to adjust instruments and keep accurate intonation.</li>
+              <li>A recording and playback feature to allow musicians to listen to themselves play and find ways to improve.</li>
           </ul>
           </div>
       </div>
@@ -104,19 +106,31 @@
               <h2>Design</h2>
               <p style="text-align: left;padding: 0px 30px;">Include design steps involved in the project. Please include any issues you experienced as well as well as smooth progress in the various phases of your project. Describe testing you performed to confirm that development steps of the project performed as planned.</p>
       </div>
+      <div class="row">
+          <div class="col-md-6" style="text-align:center;">
+          <img class="img" src="pics/concept_drawings.PNG" alt="Concept sketches for app screens." height="240">
+          <p>Figure 1. Initial concept sketches for the different screens of the music assistant. Concept sketches helped guide GUI development.</p>
+          </div>
+          <div class="col-md-6" style="text-align:center;">
+          <img class="img" src="pics/music_hardware.PNG" alt="Sketch of required hardware." height="240">
+          <p>Figure 2. An initial diagram for planning the required hardware. Other than the Pi and PiTFT screen, the project only requires a USB microphone and speakers.</p>
+          </div>
+      </div>
 
     <hr id='testing'>
 
       <div style="text-align:center;">
               <h2>Testing</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
+              <p style="text-align: justify;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
       </div>
 
     <hr id='result'>
 
       <div style="text-align:center;">
               <h2>Results</h2>
-              <p style="text-align: left;padding: 0px 30px;">Did everything perform as planned? Did your team meet the goals outlined in the description?</p>
+              <p style="text-align: justify;padding: 0px 30px;">We were able to successfully implement all of the originally intended functionality of the music assistant, including a metronome, tuner, and recording device. In particular the metronome and certain aspects of the tuner worked exceptionally. The metronome was able to provide an easily adjustable, accurate tempo for long periods of time. It also gave clear audio and visual feedback with the simulated pendulum, blinking dot, and crisp wooden tick sound. The tuner was able to accurately produce fixed frequency notes with no distortion or noise. It could also detect the peak frequency of a computer generated pure tone within a 1 Hz</p>
+              <p style="text-align: justify;padding: 0px 30px;"> Having high accuracy for detecting these frequencies was a great result, but this was only the case in ideal scenarios. The microphone we used had both low sensitivity and high noise. This meant that tones had to be played at high volume and very close to the microphone. This meant that it was also difficult to pinpoint the frequency of a voice note, because of the lower volume and overtones of human voice. </p>
+              <p style="text-align: justify;padding: 0px 30px;">The recording list display also worked well. It clearly displayed all previous recordings in the file structure by navigating through files in a simple page-based format. These recordings could be easily played, paused, stopped, or deleted. The main issue with the recorder was in making the recordings: just as with the tuner, the low-quality microphone made recordings quiet and low quality. It was also difficult to keep track of recordings: they were automatically named based on system date and time, to give unique names and order the files. This worked well in general, but had issues when the RPi was disconnected from WiFi because of the lack of an onboard clock.</p>
       </div>
 
     <hr id='conclusions'>
@@ -169,12 +183,9 @@
       <hr>
       <div style="font-size:18px">
           <h2>References</h2>
-          <a href="https://picamera.readthedocs.io/">PiCamera Document</a><br>
-          <a href="http://www.micropik.com/PDF/SG90Servo.pdf">Tower Pro Servo Datasheet</a><br>
           <a href="http://getbootstrap.com/">Bootstrap</a><br>
-          <a href="http://abyz.co.uk/rpi/pigpio/">Pigpio Library</a><br>
           <a href="https://sourceforge.net/p/raspberry-gpio-python/wiki/Home/">R-Pi GPIO Document</a><br>
-
+          <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
       </div>
 
     <hr>
