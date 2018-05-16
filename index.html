@@ -103,39 +103,46 @@
       <div style="text-align:center;">
           <h2>Design</h2>
           <p style="text-align: left;padding: 0px 30px;">Include design steps involved in the project. Please include any issues you experienced as well as well as smooth progress in the various phases of your project. Describe testing you performed to confirm that development steps of the project performed as planned.</p>
-	  <p style="text-align: left;padding: 0px 30px;">Our project can be divided into four major parts: menu display and navigation, the metronome, the tuner, and the recorder. In terms of hardware, Figure 1 shows the components used and connections among them for the device, and Figure 2 shows the actual physical setup of the device.</p>
+	  <p style="text-align: left;padding: 0px 30px;">Our project can be divided into four major parts: menu display and navigation, the metronome, the tuner, and the recorder. In terms of hardware, Figure 1 shows the components used and connections among them for the device, and Figure 2 shows the actual physical setup of the device. We used a Raspberry Pi, a piTFT display, a USB microphone, and external speakers/headphones.</p>
       </div>
       <div class="row">
           <div class="col-md-6" style="text-align:center;">
-          <img class="img" src="pics/music_hardware.PNG" alt="Sketch of required hardware." height="240">
-          <p>Figure 1. An initial diagram for planning the required hardware. Other than the Pi and PiTFT screen, the project only requires a USB microphone and speakers.</p>
+              <img class="img" src="pics/music_hardware.PNG" alt="Sketch of required hardware." height="240">
+              <p>Figure 1. An initial diagram for planning the required hardware. Other than the Pi and PiTFT screen, the project only requires a USB microphone and speakers.</p>
           </div>
 	  <div class="col-md-6" style="text-align:center;">
-          <img class="img" src="pics/setup.jpg" alt="Device setup." height="240">
-          <p>Figure 2. Physical setup of device.</p>
+              <img class="img" src="pics/setup.jpg" alt="Device setup." height="240">
+              <p>Figure 2. Physical setup of device.</p>
 	  </div>
       </div>
       <div style="text-align:center;">
 	  <h2>1. Menu Display and Navigation</h2>
-	  <p style="text-align: left;padding: 0px 30px;">The pygame library was used for creating the various menu screens and touchscreen buttons that allowed for control by the user. The initial designs for these screens are shown in Figure 3. A different file was created to handle the functionality for each screen, and they are called on by an overall controlling file that manages the navigation between each menu. When the RPi Music Assistant boots up, it starts at the main menu which contains touchscreen buttons for each of the musical tools and quitting out of the application. </p>
+	  <p style="text-align: left;padding: 0px 30px;">The pygame library was used for creating the various menu screens and touchscreen buttons that allowed for control by the user. The initial designs for these screens are shown in Figure 3. A different file was created to handle the functionality for each screen, and they are called on by an overall controlling file that manages the navigation between each menu. For each menu, the program will check for when the user taps on the touchscreen and determine which button was pressed if any. If a button was pressed, then another action will occur based on the button's functionality. When the RPi Music Assistant boots up, it starts at the main menu which contains touchscreen buttons for each of the musical tools and quitting out of the application. The main menu screen on the device is shown in Figure 4.</p>
+      </div>
+      <div class="row">
           <div class="col-md-6" style="text-align:center;">
               <img class="img" src="pics/concept_drawings.PNG" alt="Concept sketches for app screens." height="240">
               <p>Figure 3. Initial concept sketches for the different screens of the music assistant. Concept sketches helped guide GUI development.</p>
           </div>
+          <div class="col-md-6" style="text-align:center;">
               <img class="img" src="pics/main_menu.jpg" alt="Main menu screen." height="240">
               <p>Figure 4. Main menu screen. Contains buttons for each of the music tools.</p>
+	  </div>
       </div>
       <div style="text-align:center;">
 	  <h2>2. Metronome</h2>
-	  <p style="text-align: left;padding: 0px 30px;">The metronome provides visual and audio cues at a constant pace, and this helps a musician maintain a consistent tempo when practicing. The standard used for the tempo is beats per minute (bpm), which can be adjusted by the user through onscreen buttons. The menu for the metronome contains three buttons, for returning to the main menu, increasing the bpm, and decreasing the bpm. Other visual elements include the current bpm setting, a blinking red circle, and a line that bounces left and right. The bpm is maintained as a global variable in the metronome file, so when either of the bpm buttons are pressed, this value is updated accordingly and displayed on the screen. We decided to have the bpm change in increments of 5 to reach the desired bpm more quickly and also because most music uses bpm that is a multiple of 5. To have the blinking circle and bouncing line follow the timing of the given bpm, we used the time library and set display behavior based on the bpm value. First, we determined how many seconds correspond to one beat based on the bpm. For the blinking red circle, we set it so that at the beginning of each beat, it would show up on the display for 0.1 seconds and then disappear for the remainder of the beat duration. </p>
+	  <p style="text-align: left;padding: 0px 30px;">The metronome provides visual and audio cues at a constant pace, and this helps a musician maintain a consistent tempo when practicing. The standard used for the tempo is beats per minute (bpm), which can be adjusted by the user through onscreen buttons. The menu for the metronome contains three buttons, for returning to the main menu, increasing the bpm, and decreasing the bpm. Other visual elements include the current bpm setting, a blinking red circle, and a line that bounces left and right. The completed metronome tool is shown in Figure 5. </p>
           <img class="img" src="pics/metronome.jpg" alt="Metronome screen." height="240">
           <p>Figure 5. Metronome menu screen. The line bounces left and right and the red dot blinks according to the bpm rate.</p>
+	  <p style="text-align: left;padding: 0px 30px;">The bpm is maintained as a global variable in the metronome file, so when either of the bpm buttons are pressed, this value is updated accordingly and redisplayed on the screen. We decided to have the bpm change in increments of 5 to reach the desired bpm more quickly and also because most music uses bpm that is a multiple of 5. To have the blinking circle and bouncing line follow the timing of the given bpm, we used the time library and set display behavior based on the bpm value. First, we determined how many seconds correspond to one beat based on the bpm. For the blinking red circle, we set it so that at the beginning of each beat, it would show up on the display for 0.1 seconds and then disappear for the remainder of the beat duration. Generally, most music will be well under 300 bpm which corresponds to a beat duration of 0.2 seconds, so we did not worry about cases where the red circle would display for longer than the beat duration. Additionally, at the start of every beat, we would play an audio file that contained a simple percussive wood block sound. At the same time as displaying the red circle each beat, we would use a subprocess call with aplay to play the sound file, giving the audio cue for every beat.</p>
+	  <p style="text-align: left;padding: 0px 30px;">Displaying the line that would bounce left and right was more challenging to make. (insert description of how it works)</p>
       </div>
       <div style="text-align:center;">
 	  <h2>3. Tuner</h2>
-	  <p style="text-align: left;padding: 0px 30px;">The tuner...</p>
+	  <p style="text-align: left;padding: 0px 30px;">The tuner is used to play a specified note or listen to the sound received through the microphone and indicate whether it is in tune or not. The tuner screen contains buttons to change the note to be played, to play the note, to listen for the user's sound, and return to the main menu. The completed tuner screen is given in Figure 6. </p>
           <img class="img" src="pics/tuner.jpg" alt="Tuner screen." height="240">
           <p>Figure 6. Tuner screen. Can play a selected note and indicate how in tune the note being received is.</p>
+	  <p style="text-align: left;padding: 0px 30px;">In order to play different notes, we had to store a list of notes and their frequencies in the tuner file and then call on a specific index of these lists to match the note to be played. Additionally, for the listening functionality, we needed to determine what note was being received in order to decide if its intonation was flat or sharp. To do this, we set thresholds for each note so that if the frequency received was between a certain range, we would know what note it was. The thresholds were simply set as the average frequency between two consecutive notes. </p>
       </div>
       <div style="text-align:center;">
 	  <h2>4. Recorder</h2>
